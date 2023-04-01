@@ -14,7 +14,7 @@ struct price_pair {
     string name_sell;
     string name_buy;
     double price;
-    long volume;
+    long volume = -1;
 };
 
 
@@ -78,6 +78,7 @@ void quicksort_volume(price_pair* pairs, int start, int end) {
 
 
 vector<vector<price_pair>> create_graph(price_pair* pairs, int n) {
+    quicksort_name_sell(pairs, 0, n - 1);
     vector<vector<price_pair>> sales_list;
     string curr_name_sell = pairs[0].name_sell;
     vector<price_pair> curr_list;
@@ -117,7 +118,7 @@ void parseGetAllPairs(string text, price_pair* market) {
         prev_position = position;
         while(text[position] != ',')
             ++position;
-        market[mark].price = log10(stol(text.substr(prev_position, position - prev_position)));
+        market[mark].price = log10(stol(text.substr(prev_position, position - prev_position))) - 8;
         
         prev_position = position;
         while(text[position] != '_')
@@ -212,7 +213,7 @@ void parseGetPairs(string text, price_pair* market, int num_of_pairs) {
 }
 
 
-
+/*
 int main()
 {
     // Open the file
@@ -255,3 +256,4 @@ int main()
 
     return 0;
 }
+*/
