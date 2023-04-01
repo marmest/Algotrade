@@ -118,7 +118,7 @@ void parseGetAllPairs(string text, price_pair* market) {
         prev_position = position;
         while(text[position] != ',')
             ++position;
-        market[mark].price = log10(stol(text.substr(prev_position, position - prev_position))) - 8;
+        market[mark].price = -log10(stol(text.substr(prev_position, position - prev_position))) + 8;
         
         prev_position = position;
         while(text[position] != '_')
