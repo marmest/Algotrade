@@ -227,27 +227,28 @@ int main()
 
     // Read the file line by line and print each line to the console
     string line;
-    while (getline(file, line))
-    {
-        price_pair wallet[market_size];
-        parseGetAllPairs(line, wallet);
+    getline(file, line);
+    price_pair wallet[market_size];
+    parseGetAllPairs(line, wallet);
 
-        quicksort_volume(wallet, 0, market_size-1);
-        int new_size = 500;
-        quicksort_name_sell(wallet, 0, new_size-1);
-        vector<vector<price_pair>> graf = create_graph(wallet, new_size);
+    quicksort_volume(wallet, 0, market_size-1);
+    int new_size = 500;
+    quicksort_name_sell(wallet, 0, new_size-1);
+    vector<vector<price_pair>> graf = create_graph(wallet, new_size);
 
-        int brojac=0;
-        for(int i=0; i < graf.size(); ++i) {
-            cout << graf[i][0].name_sell << endl;
-            for(int j=0; j < graf[i].size(); ++j) {
-                cout << graf[i][j].name_buy << " " << graf[i][j].price << " " << graf[i][j].volume << endl;
-                ++brojac;
-            }
-           // cout << wallet[i].name_sell << " " << wallet[i].name_buy << " " << wallet[i].price << " " << wallet[i].volume << endl;
+    int brojac=0;
+    for(int i=0; i < graf.size(); ++i) {
+        cout << graf[i][0].name_sell << endl;
+        // if(graf[i].size() > 1) {
+        //     cout << graf[i].size() << endl;
+        // }
+        for(int j=0; j < graf[i].size(); ++j) {
+            cout << graf[i][j].name_buy << " " << graf[i][j].price << " " << graf[i][j].volume << endl;
+            ++brojac;
         }
-
+        cout << wallet[i].name_sell << " " << wallet[i].name_buy << " " << wallet[i].price << " " << wallet[i].volume << endl;
     }
+
 
     // Close the file
     file.close();
