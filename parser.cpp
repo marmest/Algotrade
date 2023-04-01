@@ -137,7 +137,7 @@ void parseGetPairs(string text, price_pair* market, int num_of_pairs) {
     return;
 }
 
-
+/*
 int main()
 {
     // Open the file
@@ -168,3 +168,4 @@ int main()
 
     return 0;
 }
+*/
