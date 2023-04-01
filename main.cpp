@@ -103,13 +103,16 @@ string createOrders(string user, string secret, int len, string trades[]){
 
 void trade(){
     string response = getAllPairs();
-    //cout << response << "\n";
     price_pair market[market_size];
     parseGetAllPairs(response, market);
-    cout << market[0].name_sell << "\n";
-    cout << market[0].name_buy << "\n";
-    cout << market[0].price << "\n";
-    cout << market[0].volume << "\n";
+
+    vector<vector<price_pair> > graf = create_graph(market, market_size);
+    cout << graf.size() << "\n";
+    for(int i = 0;i < graf.size(); i++){
+        if(graf[i].size() > 1){
+            //cout << graf[i].size() << "\n";
+        }
+    }
 }
 
 const int tick = 30;
