@@ -106,6 +106,10 @@ void trade(){
     price_pair market[market_size];
     parseGetAllPairs(response, market);
 
+    int market_len = 0;
+    for(int i = 0;market[i].volume != -1; i++){
+        ++market_len;
+    }
     vector<vector<price_pair> > graph = create_graph(market, market_len);
 
     unordered_map<string, double> dist;
@@ -120,7 +124,7 @@ void trade(){
         }
     }
 
-    string start_currency = "USDT"
+    string start_currency = "USDT";
     predecessor[start_currency] = "0000";
     dist[start_currency] = 0;
 
@@ -145,7 +149,7 @@ void trade(){
     cout << start_currency << " ";
     if(curr_node != "0000") {
         negative_cycle.push_back(start_currency);
-        while (find(negative_cycle.begin(), negative_cycle.end(), curr_node) == negative_cycle.end()) {
+        while (curr_node != start_currency) {
             cout << curr_node << " ";
             negative_cycle.push_back(curr_node);
             curr_node = predecessor[curr_node];
@@ -156,10 +160,10 @@ void trade(){
 
 }
 
+
+
 const int tick = 30;
 const int MAX = 1e5;
-
-
 
 int main() {
 
