@@ -114,9 +114,47 @@ void trade(){
 
     vector<vector<price_pair> > graph = create_graph(market, market_len);
 
+    unordered_map<string, double> dist;
+    unordered_map<string, string> predecessor;
+
+    for (auto& row : graph) {
+        for (auto& edge : row) {
+            dist[edge.name_sell] = INFINITY;
+            dist[edge.name_buy] = INFINITY;
+        }
+    }
+
+    string start_currency = "USDT"
+    predecessor[start_currency] = "0000";
+
+    int V = market_len;
+    for (int i = 1; i < V; ++i) {
+        for (auto& row : graph) {
+            for (auto& edge : row) {
+                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
+                    if(dist[edge.name_sell] + edge.price >= 0 || edge.name_buy == start_currency) {
+                        dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
+                        predecessor[edge.name_buy] = edge.name_sell;
+                    }
+                }
+            }
+        }
+    }
+
     
-
-
+    vector<string> negative_cycle;
+    string curr_node = predecessor[start_currency];
+    cout << start_currency << " ";
+    if(curr_node != "0000") {
+        negative_cycle.push_back(start_currency);
+        while (find(negative_cycle.begin(), negative_cycle.end(), curr_node) == negative_cycle.end()) {
+            cout << curr_node << " ";
+            negative_cycle.push_back(curr_node);
+            curr_node = predecessor[curr_node];
+        }
+        negative_cycle.push_back(curr_node);
+        cout << curr_node << endl;
+    }
 }
 
 const int tick = 30;
@@ -210,3 +248,4 @@ int main() {
 
     return 0;
 }
+
