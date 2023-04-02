@@ -59,7 +59,7 @@ string resetBalance(string user, string secret){
     return response;
 }
 
-string balance(string user){
+string Balance(string user){
     string request_name = "balance/" + user;
     string response = getRequest(request_name);
     return response;
@@ -113,81 +113,8 @@ void trade(){
     }
 
     vector<vector<price_pair> > graph = create_graph(market, market_len);
-    /*
-    cout << graph.size() << "\n";
-    for(int i = 0;i < 10; i++){
-        cout << graph[i][0].name_sell << ":\n";
-        for(int j = 0;j < graph[i].size(); j++){
-            cout << graph[i][j].name_buy << " " << graph[i][j].price << "\n";
-        }cout << "\n";
-    }
-    */
 
-    unordered_map<string, double> dist;
-    unordered_map<string, string> predecessor;
-
-    for (auto& row : graph) {
-        for (auto& edge : row) {
-            dist[edge.name_sell] = INFINITY;
-            dist[edge.name_buy] = INFINITY;
-        }
-    }
-    dist[graph[0][0].name_sell] = 0;
-
-
-    int V = market_len;
-    for (int i = 1; i < V; ++i) {
-        for (auto& row : graph) {
-            for (auto& edge : row) {
-                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
-                    dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
-                    predecessor[edge.name_buy] = edge.name_sell;
-                }
-            }
-        }
-        
-    }
-    /*
-    bool has_negative_cycle = false;
-    for (auto& row : graph) {
-        for (auto& edge : row) {
-            if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
-                has_negative_cycle = true;
-                break;
-            }
-        }
-    }
-    if (has_negative_cycle) {
-        cout << "The graph contains a negative cycle" << endl;
-    } else {
-        cout << "The graph does not contain a negative cycle" << endl;
-    }
-    */
-   vector<string> negative_cycle;
-    for (auto& row : graph) {
-        for (auto& edge : row) {
-            if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
-                cout << "Negative cycle detected\n";
-                string start_node = edge.name_buy;
-                string current_node = predecessor[start_node];
-                cout << start_node << " " << current_node << "\n";
-                while (negative_cycle.empty() || current_node != start_node) {
-                    //cout << predecessor[start_node] << "\n";
-                    negative_cycle.insert(negative_cycle.begin(), current_node);
-                    current_node = predecessor[current_node];
-                }
-                negative_cycle.insert(negative_cycle.begin(), start_node);
-                cout << "Negative cycle: ";
-                for (auto& node : negative_cycle) {
-                    cout << node << " ";
-                }
-                cout << endl;
-                negative_cycle.clear();
-            }
-        }
-    }
-
-
+    
 
 
 }
@@ -203,43 +130,6 @@ int main() {
 
     return 0;
 
-    /*
-    // Open the file
-    ifstream file("responses/getPairs.txt");
-
-    // Check if the file was opened successfully
-    if (!file.is_open())
-    {
-        cout << "Failed to open file\n";
-        return 1;
-    }
-
-    // Read the file line by line and print each line to the console
-    string line;
-    while (getline(file, line))
-    {
-        price_pair wallet[6];
-        parseGetPairs(line, wallet, 6);
-
-        for(int i=0; i < 6; ++i) {
-            cout << wallet[i].name_buy << " " << wallet[i].name_sell 
-            << " " << wallet[i].price << " " << wallet[i].volume << endl;
-        }
-    }
-
-    // Close the file
-    file.close();
-
-    return 0;
-    */
-
-/*
-    double req_time[MAX];
-    string time;
-    for(double seg = 0.0;seg <= tick; seg += 0.2){
-        cout << seg << "\n";
-    }
-*/
     string time[MAX];
     int cnt = 0, last_cnt = 0;
     int found_cnt = 0;
