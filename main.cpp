@@ -106,12 +106,6 @@ void trade(){
     price_pair market[market_size];
     parseGetAllPairs(response, market);
 
-    int market_len = 0;
-
-    for(int i = 0;market[i].volume != -1; i++){
-        ++market_len;
-    }
-
     vector<vector<price_pair> > graph = create_graph(market, market_len);
 
     unordered_map<string, double> dist;
@@ -126,16 +120,17 @@ void trade(){
 
     string start_currency = "USDT"
     predecessor[start_currency] = "0000";
+    dist[start_currency] = 0;
 
-    int V = market_len;
+    int V = graph.size();
     for (int i = 1; i < V; ++i) {
         for (auto& row : graph) {
             for (auto& edge : row) {
                 if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
                     if(dist[edge.name_sell] + edge.price >= 0 || edge.name_buy == start_currency) {
-                        dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
                         predecessor[edge.name_buy] = edge.name_sell;
                     }
+                    dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
                 }
             }
         }
