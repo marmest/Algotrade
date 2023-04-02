@@ -111,6 +111,8 @@ void trade(){
     unordered_map<string, double> dist;
     unordered_map<string, string> predecessor;
 
+
+// inicijalizacija za Bellman-Forda
     for (auto& row : graph) {
         for (auto& edge : row) {
             dist[edge.name_sell] = INFINITY;
@@ -122,6 +124,7 @@ void trade(){
     predecessor[start_currency] = "0000";
     dist[start_currency] = 0;
 
+// Bellman-Ford bez negativnih podgrafova
     int V = graph.size();
     for (int i = 1; i < V; ++i) {
         for (auto& row : graph) {
@@ -136,7 +139,7 @@ void trade(){
         }
     }
 
-    
+// trazimo negativan ciklus koji sadrzi start_currency
     vector<string> negative_cycle;
     string curr_node = predecessor[start_currency];
     cout << start_currency << " ";
@@ -150,6 +153,7 @@ void trade(){
         negative_cycle.push_back(curr_node);
         cout << curr_node << endl;
     }
+
 }
 
 const int tick = 30;
@@ -234,12 +238,6 @@ int main() {
         // add a small sleep to avoid high CPU usage
         this_thread::sleep_for(milliseconds(10));
     }
-
-
-
-
-
-
 
     return 0;
 }
