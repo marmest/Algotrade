@@ -133,7 +133,7 @@ void trade(){
     for (int i = 1; i < V; ++i) {
         for (auto& row : graph) {
             for (auto& edge : row) {
-                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
+                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy] && edge.volume > 0) {
                     if(dist[edge.name_sell] + edge.price >= 0 || edge.name_buy == start_currency) {
                         predecessor[edge.name_buy] = edge.name_sell;
                     }
