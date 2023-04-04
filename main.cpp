@@ -8,6 +8,9 @@
 using namespace std;
 using namespace std::chrono;
 
+const int tick = 30;
+const int MAX = 1e5;
+
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
     ((string*)userdata)->append(ptr, size * nmemb);
     return size * nmemb;
@@ -21,7 +24,7 @@ string getRequest(string request_name){
 
     curl = curl_easy_init();
     if (curl) {
-        string request = "http://192.168.1.101:3000/" + request_name;
+        string request = "http://192.168.1.104:3000/" + request_name;
         curl_easy_setopt(curl, CURLOPT_URL, request.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
@@ -73,6 +76,7 @@ string getPairs(int len, string pairs[]){
             request_name += "|";
         }
     }
+    cout << request_name << "\n";
     string response = getRequest(request_name);
     return response;
 }
@@ -114,6 +118,7 @@ void trade(){
 
     vector<vector<price_pair> > graph = create_graph(market, market_len);
 
+    int V = graph.size();
     unordered_map<string, double> dist;
     unordered_map<string, string> predecessor;
 
@@ -124,41 +129,87 @@ void trade(){
         }
     }
 
-    string start_currency = "USDT"
-    predecessor[start_currency] = "0000";
+    dist["USDT"] = 0;
 
-    int V = market_len;
     for (int i = 1; i < V; ++i) {
         for (auto& row : graph) {
             for (auto& edge : row) {
-                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
-                    if(dist[edge.name_sell] + edge.price >= 0 || edge.name_buy == start_currency) {
-                        dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
-                        predecessor[edge.name_buy] = edge.name_sell;
-                    }
+                if (dist[edge.name_sell] + edge.price < dist[edge.name_buy] && edge.volume > 0) {
+                    predecessor[edge.name_buy] = edge.name_sell;
+                    dist[edge.name_buy] = dist[edge.name_sell] + edge.price;
                 }
             }
         }
     }
 
-    
     vector<string> negative_cycle;
-    string curr_node = predecessor[start_currency];
-    cout << start_currency << " ";
-    if(curr_node != "0000") {
-        negative_cycle.push_back(start_currency);
-        while (find(negative_cycle.begin(), negative_cycle.end(), curr_node) == negative_cycle.end()) {
-            cout << curr_node << " ";
-            negative_cycle.push_back(curr_node);
-            curr_node = predecessor[curr_node];
-        }
-        negative_cycle.push_back(curr_node);
-        cout << curr_node << endl;
-    }
-}
+    for (auto& row : graph) {
+        for (auto& edge : row) {
+            if (dist[edge.name_sell] + edge.price < dist[edge.name_buy]) {
+                string current_node = edge.name_buy;
+                negative_cycle.push_back(current_node);
+                current_node = predecessor[current_node];
+                while (find(negative_cycle.begin(), negative_cycle.end(), current_node) == negative_cycle.end()) {
+                    negative_cycle.push_back(current_node);
+                    current_node = predecessor[current_node];
+                }
+                negative_cycle.push_back(current_node);
+                reverse(negative_cycle.begin(), negative_cycle.end());
+                while(negative_cycle.front() != negative_cycle.back()){
+                    negative_cycle.pop_back();
+                }
 
-const int tick = 30;
-const int MAX = 1e5;
+                goto H;
+
+                negative_cycle.clear();
+
+            }
+        }
+    }
+    H:;
+    // GOTO kutak
+    string pairs[50];
+    negative_cycle.push_back("USDT");
+    negative_cycle.insert(negative_cycle.begin(), "USDT");
+    for(int i = 0;i < negative_cycle.size() - 1; i++){
+        pairs[i] = negative_cycle[i] + "," + negative_cycle[i + 1];
+    }
+
+    string getPairsResponse = getPairs(negative_cycle.size() - 1, pairs);
+    price_pair market2[negative_cycle.size() - 1];
+    parseGetPairs(getPairsResponse, market2, negative_cycle.size() - 1);
+    string balances = Balance("pzspmf");
+
+    balance wallet[V];
+
+    parseBalance(balances, wallet);
+    map<string, long> bal;
+    for(int i = 0;i < V; i++){
+        bal[wallet[i].currency] = wallet[i].amount;
+    }
+
+    double b = bal["USDT"];
+    cout << b << "\n";
+    double mul = 1.0, vol;
+    for(int i = 0;i < negative_cycle.size(); i++){
+        mul *= market2[i].price;
+        vol = market2[i].volume;
+        cout << mul << " " << vol << "\n";
+        if(vol * mul < b){
+            b = vol * mul;
+        }   
+    }
+
+    cout << b << "\n";
+
+    for(int i = 0;i < negative_cycle.size() - 1; i++){
+        pairs[i] = negative_cycle[i] + "," + negative_cycle[i + 1] + "," + to_string((long)b);
+        b *= market2[i].price;
+        cout << negative_cycle[i+1] << ": " << b << endl;
+    }
+
+    //cout << createOrders("pzspmf", "b23e9b0e7e3b48e5c33578cbbe718a7f", negative_cycle.size(), pairs);
+}
 
 
 
@@ -248,4 +299,3 @@ int main() {
 
     return 0;
 }
-
